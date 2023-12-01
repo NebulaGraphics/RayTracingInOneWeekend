@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
 		cv::imshow(window_name, *buffer);
 		keyCode = cv::pollKey();
 
-		std::cout << keyCode << std::endl;
 		if (keyCode == 119)
 		{
 			// forward 
@@ -115,6 +114,7 @@ void ray_tracing(cv::Mat* buffer, int sample_per_pixel = 1, int bounce = 50)
 
 	while (isRunning)
 	{
+		auto current_clock = clock();
 		for (int j = 0; j < target_height; ++j) {
 			auto horizonal = buffer->ptr<uchar>(j);
 			for (int i = 0; i < target_width * channels; i += channels) {
@@ -147,10 +147,11 @@ void ray_tracing(cv::Mat* buffer, int sample_per_pixel = 1, int bounce = 50)
 				horizonal[i] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.z())) * 255);
 				horizonal[i + 1] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.y())) * 255);
 				horizonal[i + 2] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.x())) * 255);
-				;
+				
 			}
 		}
 
+		std::cout << "time cost per frame:" << (clock() - current_clock) / 1000.f << " s" << std::endl;
 	}
 
 	std::cout << " rendering end " << std::endl;
