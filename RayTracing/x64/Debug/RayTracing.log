@@ -1,3 +1,8 @@
-﻿  RayTracing.cpp
+﻿  ray_tracing.cpp
 D:\OpenCV\opencv\build\include\opencv2\objdetect\aruco_board.hpp(1,1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(118,84): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(119,84): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(120,84): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(29,51): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(161,15): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
   RayTracing.vcxproj -> E:\TechCenter\NebulaEngine\Nebula\x64\Debug\RayTracing.exe
