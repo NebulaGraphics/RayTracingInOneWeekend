@@ -24,6 +24,11 @@ public :
 
 	}
 
+	void move(vec3 offset)
+	{
+		_position += offset;
+	}
+
 	float aspect_ratio() const { return _aspect_ratio; }
 	float fov() const { return _fov; }
 	float fov_rad() const { return degrees_to_radians(_fov); }
