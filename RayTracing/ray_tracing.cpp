@@ -18,7 +18,12 @@
 
 using color = vec3;
 
-void ray_tracing(cv::Mat* buffer, int sampler_per_pixel, int bounce);
+void ray_tracing(
+	cv::Mat* buffer,
+	int rows_start, int rows_end,
+	int cols_start, int cols_end,
+	int sample_per_pixel, int bounce);
+
 void init_world();
 void move_camera(float x, float y, float z);
 
@@ -43,7 +48,28 @@ int main(int argc, char* argv[])
 
 	init_world();
 
-	std::thread tracing_thread(ray_tracing, buffer, 10, 50);
+	std::vector<std::thread> tiled_threads;
+	const int tile_size = 128;
+	const int horizontal_count = std::ceil((double)buffer->cols / tile_size);
+	const int vertical_count = std::ceil((double)buffer->rows / tile_size);
+
+	for (int i = 0; i < vertical_count; ++i)
+	{
+		for (int j = 0; j < horizontal_count; ++j)
+		{
+			std::thread tracing_thread(ray_tracing,
+				buffer,										 // render target
+				i * tile_size,							     // row start
+				std::min(buffer->rows, (i + 1) * tile_size), // row end
+				j * tile_size,                               // col start
+				std::min(buffer->cols, (j + 1) * tile_size), // col end
+				10, // sample count
+				50  // bounce count
+			);
+
+			tiled_threads.emplace_back(std::move(tracing_thread));
+		}
+	}
 
 	while (keyCode != 27)
 	{
@@ -76,10 +102,15 @@ int main(int argc, char* argv[])
 
 	isRunning = false;
 
-	if (tracing_thread.joinable())
+	for (auto& tile_unit : tiled_threads)
 	{
-		tracing_thread.join();
+		if (tile_unit.joinable())
+		{
+			tile_unit.join();
+		}
 	}
+
+	tiled_threads.clear();
 
 	cv::destroyAllWindows();
 
@@ -111,19 +142,22 @@ color pixel_shader(varying varying);
 
 interval color_intensity(0.000, 0.999);
 
-void ray_tracing(cv::Mat* buffer, int sample_per_pixel = 1, int bounce = 50)
+void ray_tracing(
+	cv::Mat* buffer,
+	int rows_start, int rows_end,
+	int cols_start, int cols_end,
+	int sample_per_pixel = 1, int bounce = 50)
 {
-	auto target_height = buffer->rows;
-	auto target_width = buffer->cols;
-	auto channels = buffer->channels();
 
+	auto target_width = buffer->cols;
+	auto target_height = buffer->rows;
 
 	while (isRunning)
 	{
 		auto current_clock = clock();
-		for (int j = 0; j < target_height; ++j) {
-			auto horizonal = buffer->ptr<uchar>(j);
-			for (int i = 0; i < target_width * channels; i += channels) {
+
+		for (int j = rows_start; j < rows_end; ++j) {
+			for (int i = cols_start; i < cols_end; ++i) {
 
 				color final_color;
 				for (int sample = 0; sample < sample_per_pixel; ++sample)
@@ -136,7 +170,9 @@ void ray_tracing(cv::Mat* buffer, int sample_per_pixel = 1, int bounce = 50)
 					auto color = pixel_shader(varying
 						{
 							// uv
-							float2{ (float)((float)i / channels / target_width + random_double() / (target_width * channels)), 1.0f - (float)((float)j / target_height + random_double() / target_height)},
+							float2{ 
+							(float)((float)i / target_width + random_double() / (target_width)),
+							1.0f - (float)((float)j / target_height + random_double() / target_height)},
 							// resolution
 							resolution { (float)target_width, (float)target_height},
 							// bounce
@@ -150,17 +186,16 @@ void ray_tracing(cv::Mat* buffer, int sample_per_pixel = 1, int bounce = 50)
 				final_color /= sample_per_pixel;
 
 				//BGR£¨À¶¡¢ÂÌ¡¢ºì£©
-				horizonal[i] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.z())) * 255);
-				horizonal[i + 1] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.y())) * 255);
-				horizonal[i + 2] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.x())) * 255);
+				buffer->at<cv::Vec3b>(j, i)[0] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.z())) * 255);
+				buffer->at<cv::Vec3b>(j, i)[1] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.y())) * 255);
+				buffer->at<cv::Vec3b>(j, i)[2] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.x())) * 255);
 				
 			}
 		}
 
-		std::cout << "time cost per frame:" << (clock() - current_clock) / 1000.f << " s" << std::endl;
+		std::cout << "time cost per frame:" << (clock() - current_clock) / 1000.f << " s \n" << std::endl;
 	}
 
-	std::cout << " rendering end " << std::endl;
 }
 
 /**
