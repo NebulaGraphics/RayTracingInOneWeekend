@@ -1,5 +1,6 @@
 #include "./opencv2/opencv.hpp"
 #include "./opencv2/core/opengl.hpp"
+#include "./opencv2/highgui/highgui.hpp"
 #include "./opencv2/highgui/highgui_c.h"
 #include "rt_weekend.h"
 #include <cmath>
@@ -8,7 +9,12 @@
 #include "interval.h"
 #include "material.h"
 
-#pragma comment(lib,"opencv_world470d.lib")
+#if _DEBUG
+#pragma comment(lib,"opencv_world481d.lib")
+#else
+#pragma comment(lib,"opencv_world481.lib")
+#endif
+
 
 using color = vec3;
 
@@ -37,7 +43,7 @@ int main(int argc, char* argv[])
 
 	init_world();
 
-	std::thread tracing_thread(ray_tracing, buffer, 5, 50);
+	std::thread tracing_thread(ray_tracing, buffer, 10, 50);
 
 	while (keyCode != 27)
 	{
@@ -172,14 +178,13 @@ void ray_tracing(cv::Mat* buffer, int sample_per_pixel = 1, int bounce = 50)
 #include "sphere.h"
 
 camera main_camera(
-	vec3{ 0, 0, 3 },               // position
+	vec3{ -2, 2, 1 },               // position
 	view_port{ 0, 0, 1, 1 },        // view port 
 	0.1f,                          // near
 	10000.f,                       // far
-	60.f,                          // fov
+	90.f,                          // fov
 	1280.f / 720.f                 // aspect ratio
 );
-
 
 void move_camera(float x, float y, float z)
 {
@@ -209,16 +214,34 @@ ray get_ray(varying varying)
 	auto view_height = tan(main_camera.fov_rad() / 2) * main_camera.near() * 2;
 	auto view_width = view_height * main_camera.aspect_ratio();
 
-	auto pixel_world_pos = vec3
+	auto camera_up = main_camera.up();
+	auto camera_right = main_camera.right();
+	auto camera_forward = -main_camera.forward();
+
+	assert(approx_equal(0, dot(camera_up, camera_right)));
+	assert(approx_equal(0, dot(camera_up, camera_forward)));
+	assert(approx_equal(0, dot(camera_right, camera_forward)));
+
+	auto sign_u = varying.uv.u > 0.5 ? 1 : -1;
+	auto sign_v = varying.uv.v > 0.5 ? 1 : -1;
+	auto pixel_view_pos = vec3
 	{
 		(varying.uv.u - 0.5) * view_width ,
-		(varying.uv.v - 0.5) * view_height,
+		(varying.uv.v - 0.5) * view_height ,
 		// camera is look to -z
-		(float)main_camera.position().z() - main_camera.near()
+		-main_camera.near()
 	};
 
-	vec3 ray_direction{ pixel_world_pos - main_camera.position() };
-	ray r(main_camera.position(), ray_direction);
+	vec3 ray_direction_view{ normalize(pixel_view_pos)};
+	vec3 ray_direction(
+		dot(vec3(camera_right.x(), camera_up.x(), camera_forward.x()),
+			ray_direction_view),
+		dot(vec3(camera_right.y(), camera_up.y(), camera_forward.y()),
+			ray_direction_view),
+		dot(vec3(camera_right.z(), camera_up.z(), camera_forward.z()),
+			ray_direction_view)
+	);
+	ray r(main_camera.position(), normalize(ray_direction));
 	return r;
 }
 
@@ -254,14 +277,18 @@ hittable_list world;
 void init_world()
 {
 	auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-	auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
-	auto material_left = make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
-	auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
+	auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
+	auto material_left = make_shared<dielectric>(1.5);
+	auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
 
 	world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
 	world.add(make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, material_center));
 	world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
+	world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), -0.4, material_left));
 	world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
+	main_camera.set_fov(20);
+	main_camera.set_position(vec3(-2, 2, 1));
+	main_camera.look_at(vec3(0, 0, -1));
 }
 
 color pixel_shader(varying varying) {

@@ -39,6 +39,12 @@ inline double random_double(double min, double max) {
     return min + (max - min) * random_double();
 }
 
+inline bool approx_equal(double a, double b)
+{
+    auto s = 1e-8;
+    return (fabs(a - b) < s);
+}
+
 #include "ray.h"
 #include "vec3.h"
 using color = vec3;

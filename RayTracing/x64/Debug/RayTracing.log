@@ -1,12 +1,11 @@
 ﻿  ray_tracing.cpp
-D:\OpenCV\opencv\build\include\opencv2\objdetect\aruco_board.hpp(1,1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(50,27): warning C4305: 'argument': truncation from 'double' to 'float'
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(55,27): warning C4305: 'argument': truncation from 'double' to 'float'
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(60,26): warning C4305: 'argument': truncation from 'double' to 'float'
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(65,26): warning C4305: 'argument': truncation from 'double' to 'float'
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(147,65): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(148,69): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(149,69): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(34,51): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(198,12): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-  RayTracing.vcxproj -> E:\TechCenter\NebulaEngine\Nebula\x64\Debug\RayTracing.exe
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(56,27): warning C4305: 'argument': truncation from 'double' to 'float'
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(61,27): warning C4305: 'argument': truncation from 'double' to 'float'
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(66,26): warning C4305: 'argument': truncation from 'double' to 'float'
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(71,26): warning C4305: 'argument': truncation from 'double' to 'float'
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(153,65): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(154,69): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(155,69): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(35,51): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(203,12): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+  RayTracing.vcxproj -> E:\Work\NebulaEngine\Nebula\x64\Debug\RayTracing.exe
