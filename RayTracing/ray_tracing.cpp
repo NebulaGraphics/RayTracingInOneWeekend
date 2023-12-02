@@ -48,28 +48,50 @@ int main(int argc, char* argv[])
 
 	init_world();
 
-	std::vector<std::thread> tiled_threads;
-	const int tile_size = 128;
-	const int horizontal_count = std::ceil((double)buffer->cols / tile_size);
-	const int vertical_count = std::ceil((double)buffer->rows / tile_size);
+	std::thread rendering_thread([&buffer]() {
 
-	for (int i = 0; i < vertical_count; ++i)
-	{
-		for (int j = 0; j < horizontal_count; ++j)
+		std::vector<std::thread> tiled_threads;
+		const int tile_size = 256;
+		const int horizontal_count = std::ceil((double)buffer->cols / tile_size);
+		const int vertical_count = std::ceil((double)buffer->rows / tile_size);
+
+		while (isRunning)
 		{
-			std::thread tracing_thread(ray_tracing,
-				buffer,										 // render target
-				i * tile_size,							     // row start
-				std::min(buffer->rows, (i + 1) * tile_size), // row end
-				j * tile_size,                               // col start
-				std::min(buffer->cols, (j + 1) * tile_size), // col end
-				10, // sample count
-				50  // bounce count
-			);
+			std::cout << " ######## start render ######## \n";
+			auto start_clock = clock();
+			
+			for (int i = 0; i < vertical_count; ++i)
+			{
+				for (int j = 0; j < horizontal_count; ++j)
+				{
+					std::thread tracing_thread(ray_tracing,
+						buffer,										 // render target
+						i * tile_size,							     // row start
+						std::min(buffer->rows, (i + 1) * tile_size), // row end
+						j * tile_size,                               // col start
+						std::min(buffer->cols, (j + 1) * tile_size), // col end
+						10, // sample count
+						50  // bounce count
+					);
 
-			tiled_threads.emplace_back(std::move(tracing_thread));
+					tiled_threads.emplace_back(std::move(tracing_thread));
+				}
+			}
+
+			for (auto& tile_unit : tiled_threads)
+			{
+				if (tile_unit.joinable())
+				{
+					tile_unit.join();
+				}
+			}
+
+			tiled_threads.clear();
+
+			std::cout << "frame time :" << (clock() - start_clock) / 1000 << " s \n";
 		}
-	}
+
+	});
 
 	while (keyCode != 27)
 	{
@@ -97,20 +119,15 @@ int main(int argc, char* argv[])
 			move_camera(0.01, 0, 0);
 		}
 
-		
+
 	}
 
 	isRunning = false;
 
-	for (auto& tile_unit : tiled_threads)
+	if (rendering_thread.joinable())
 	{
-		if (tile_unit.joinable())
-		{
-			tile_unit.join();
-		}
+		rendering_thread.join();
 	}
-
-	tiled_threads.clear();
 
 	cv::destroyAllWindows();
 
@@ -152,48 +169,43 @@ void ray_tracing(
 	auto target_width = buffer->cols;
 	auto target_height = buffer->rows;
 
-	while (isRunning)
-	{
-		auto current_clock = clock();
+	auto current_clock = clock();
 
-		for (int j = rows_start; j < rows_end; ++j) {
-			for (int i = cols_start; i < cols_end; ++i) {
+	for (int j = rows_start; j < rows_end; ++j) {
+		for (int i = cols_start; i < cols_end; ++i) {
 
-				color final_color;
-				for (int sample = 0; sample < sample_per_pixel; ++sample)
+			color final_color;
+			for (int sample = 0; sample < sample_per_pixel; ++sample)
+			{
+				if (!isRunning)
 				{
-					if (!isRunning)
-					{
-						break;
-					}
-
-					auto color = pixel_shader(varying
-						{
-							// uv
-							float2{ 
-							(float)((float)i / target_width + random_double() / (target_width)),
-							1.0f - (float)((float)j / target_height + random_double() / target_height)},
-							// resolution
-							resolution { (float)target_width, (float)target_height},
-							// bounce
-							bounce
-						}
-					);
-
-					final_color += color;
+					break;
 				}
 
-				final_color /= sample_per_pixel;
+				auto color = pixel_shader(varying
+					{
+						// uv
+						float2{
+						(float)((float)i / target_width + random_double() / (target_width)),
+						1.0f - (float)((float)j / target_height + random_double() / target_height)},
+						// resolution
+						resolution { (float)target_width, (float)target_height},
+						// bounce
+						bounce
+					}
+				);
 
-				//BGR£¨À¶¡¢ÂÌ¡¢ºì£©
-				buffer->at<cv::Vec3b>(j, i)[0] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.z())) * 255);
-				buffer->at<cv::Vec3b>(j, i)[1] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.y())) * 255);
-				buffer->at<cv::Vec3b>(j, i)[2] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.x())) * 255);
-				
+				final_color += color;
 			}
-		}
 
-		std::cout << "time cost per frame:" << (clock() - current_clock) / 1000.f << " s \n" << std::endl;
+			final_color /= sample_per_pixel;
+
+			//BGR£¨À¶¡¢ÂÌ¡¢ºì£©
+			buffer->at<cv::Vec3b>(j, i)[0] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.z())) * 255);
+			buffer->at<cv::Vec3b>(j, i)[1] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.y())) * 255);
+			buffer->at<cv::Vec3b>(j, i)[2] = (uchar)(linear_to_gamma(color_intensity.clamp(final_color.x())) * 255);
+
+		}
 	}
 
 }
@@ -267,7 +279,7 @@ ray get_ray(varying varying)
 		-main_camera.near()
 	};
 
-	vec3 ray_direction_view{ normalize(pixel_view_pos)};
+	vec3 ray_direction_view{ normalize(pixel_view_pos) };
 	vec3 ray_direction(
 		dot(vec3(camera_right.x(), camera_up.x(), camera_forward.x()),
 			ray_direction_view),
