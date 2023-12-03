@@ -36,6 +36,7 @@ public :
 	vec3 position() const { return _position; }
 	void set_position(const vec3& pos) { _position = pos; }
 	float near() const { return _near; }
+	double focus_distance() const { return focus_dist; }
 	view_port get_view_port() const { return _view_port; }
 
 	vec3 forward() const { return _forward; }
@@ -52,6 +53,36 @@ public :
 
 		_up = normalize(cross(-_forward, _right));
 
+		//focus_dist = (target - _position).length();
+	}
+
+	void set_defocus_angle(double angle)
+	{
+		// TODO: fix this bug
+		defocus_angle = angle * 0.06;
+	}
+
+	void set_focus_dist(double dist)
+	{
+		focus_dist = dist;
+	}
+
+	double get_defocus_angle() const
+	{
+		return defocus_angle;
+	}
+
+	point3 defocus_disk_sample() const {
+
+		
+		// Calculate the camera defocus disk basis vectors.
+		auto defocus_radius = focus_dist * tan(degrees_to_radians(defocus_angle / 2));
+		auto defocus_disk_u = _right * defocus_radius;
+		auto defocus_disk_v = _up * defocus_radius;
+
+		// Returns a random point in the camera defocus disk.
+		auto p = random_in_unit_disk();
+		return _position + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
 	}
 
 private:
@@ -64,5 +95,8 @@ private:
 	vec3 _up = vec3(0, 1, 0);
 
 	view_port _view_port;
+
+	double defocus_angle = 0;  // Variation angle of rays through each pixel
+	double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
 
 };

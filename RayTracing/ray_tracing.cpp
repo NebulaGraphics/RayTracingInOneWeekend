@@ -41,8 +41,8 @@ int main(int argc, char* argv[])
 	cv::String window_name = "Raytracing in one weekend";
 
 	cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
-
-	auto buffer = new cv::Mat(1080, 1920, CV_8UC3);
+	const int scale = 2;
+	auto buffer = new cv::Mat(1080 / scale, 1920 / scale, CV_8UC3);
 
 	int keyCode = 0;
 
@@ -70,8 +70,8 @@ int main(int argc, char* argv[])
 						std::min(buffer->rows, (i + 1) * tile_size), // row end
 						j * tile_size,                               // col start
 						std::min(buffer->cols, (j + 1) * tile_size), // col end
-						10, // sample count
-						50  // bounce count
+						100, // sample count
+						10  // bounce count
 					);
 
 					tiled_threads.emplace_back(std::move(tracing_thread));
@@ -288,7 +288,11 @@ ray get_ray(varying varying)
 		dot(vec3(camera_right.z(), camera_up.z(), camera_forward.z()),
 			ray_direction_view)
 	);
-	ray r(main_camera.position(), normalize(ray_direction));
+
+	double defocus_angle = main_camera.get_defocus_angle();
+
+	vec3 ray_origin = defocus_angle <= 0 ? main_camera.position() : main_camera.defocus_disk_sample();
+	ray r(ray_origin, normalize(ray_direction));
 	return r;
 }
 
@@ -323,19 +327,54 @@ hittable_list world;
 
 void init_world()
 {
-	auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-	auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
-	auto material_left = make_shared<dielectric>(1.5);
-	auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
+	auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+	world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
 
-	world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
-	world.add(make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, material_center));
-	world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
-	world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), -0.4, material_left));
-	world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
+	for (int a = -11; a < 11; a++) {
+		for (int b = -11; b < 11; b++) {
+			auto choose_mat = random_double();
+			point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
+
+			if ((center - point3(4, 0.2, 0)).length() > 0.9) {
+				shared_ptr<material> sphere_material;
+
+				if (choose_mat < 0.8) {
+					// diffuse
+					auto albedo = color::random() * color::random();
+					sphere_material = make_shared<lambertian>(albedo);
+					world.add(make_shared<sphere>(center, 0.2, sphere_material));
+				}
+				else if (choose_mat < 0.95) {
+					// metal
+					auto albedo = color::random(0.5, 1);
+					auto fuzz = random_double(0, 0.5);
+					sphere_material = make_shared<metal>(albedo, fuzz);
+					world.add(make_shared<sphere>(center, 0.2, sphere_material));
+				}
+				else {
+					// glass
+					sphere_material = make_shared<dielectric>(1.5);
+					world.add(make_shared<sphere>(center, 0.2, sphere_material));
+				}
+			}
+		}
+	}
+
+	auto material1 = make_shared<dielectric>(1.5);
+	world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
+
+	auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
+	world.add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
+
+	auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
+	world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
+
+
 	main_camera.set_fov(20);
-	main_camera.set_position(vec3(-2, 2, 1));
-	main_camera.look_at(vec3(0, 0, -1));
+	main_camera.set_position(vec3(13, 2, 3));
+	main_camera.look_at(vec3(0, 0, 0));
+	main_camera.set_defocus_angle(0.6);
+	main_camera.set_focus_dist(10);
 }
 
 color pixel_shader(varying varying) {
