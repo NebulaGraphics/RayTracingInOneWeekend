@@ -1,15 +1,11 @@
-﻿  ray_tracing.cpp
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(55,41): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(55,30): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(56,39): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(56,28): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(104,27): warning C4305: 'argument': truncation from 'double' to 'float'
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(109,27): warning C4305: 'argument': truncation from 'double' to 'float'
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(114,26): warning C4305: 'argument': truncation from 'double' to 'float'
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(119,26): warning C4305: 'argument': truncation from 'double' to 'float'
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(204,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(205,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(206,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(35,51): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-E:\Work\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\ray_tracing.cpp(250,12): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-  RayTracing.vcxproj -> E:\Work\NebulaEngine\Nebula\x64\Debug\RayTracing.exe
+﻿  main.cpp
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(47,51): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(127,42): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(127,31): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(128,40): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(128,29): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(216,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(333,83): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(334,83): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+E:\TechCenter\NebulaEngine\Nebula\Samples\RayTracingInOneWeekend\RayTracing\camera.h(335,83): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  RayTracing.vcxproj -> E:\TechCenter\NebulaEngine\Nebula\x64\Debug\RayTracing.exe

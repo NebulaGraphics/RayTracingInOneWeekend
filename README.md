@@ -5,4 +5,4 @@
 Env Variables
 ![img](./Env.png)
 
-Version : 481
+OpenCV 4.8.1 : https://github.com/opencv/opencv/releases/download/4.8.1/opencv-4.8.1-windows.exe
